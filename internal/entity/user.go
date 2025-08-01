@@ -1,6 +1,8 @@
 package entity
 
 import (
+	"errors"
+	"strings"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -30,6 +32,7 @@ func NewUser(name, email, password string) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &User{
 		Name:      name,
 		Email:     email,
@@ -39,7 +42,15 @@ func NewUser(name, email, password string) (*User, error) {
 	}, nil
 }
 
-func (u *User) CompareHashAndPassword(password string) bool {
+func (u *User) ValidatePassword(password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
 	return err == nil
+}
+
+func (u *User) ValidateEmail(email string) error {
+	if !strings.HasSuffix(strings.ToLower(email), "@redhat.com") {
+		return errors.New("email must be a redhat.com email")
+	}
+
+	return nil
 }

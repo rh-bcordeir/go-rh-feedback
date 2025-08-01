@@ -41,6 +41,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.WithValue("jwtAuth", NewJWTAuth()))
+	r.Use(middleware.WithValue("JwtExperesIn", os.Getenv("JWT_EXPIRESIN")))
 
 	r.Post("/users/sign_in", userHandler.SignIn)
 
