@@ -3,6 +3,7 @@ package server
 import (
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/brunocordeiro180/go-rh-feedback/internal/infra/database"
@@ -38,12 +39,16 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	userHandler := NewUserHandler(userDB)
 
+	expiresStr := os.Getenv("JWT_EXPIRESIN")
+	expiresInt, _ := strconv.Atoi(expiresStr)
+
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.WithValue("jwtAuth", NewJWTAuth()))
-	r.Use(middleware.WithValue("JwtExperesIn", os.Getenv("JWT_EXPIRESIN")))
+	r.Use(middleware.WithValue("JwtExpiresIn", expiresInt))
 
-	r.Post("/users/sign_in", userHandler.SignIn)
+	r.Post("/users/login", userHandler.SignIn)
+	r.Post("/users/sign_up", userHandler.SignUp)
 
 	return r
 }

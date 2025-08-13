@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/brunocordeiro180/go-rh-feedback/internal/entity"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
@@ -33,4 +34,11 @@ func (userDB *UserDB) FindByEmail(email string) (*entity.User, error) {
 	}
 
 	return &userResult, nil
+}
+
+func (userDB *UserDB) SaveUser(user *entity.User) error {
+	//TODO: verify it has already an user with that email address
+	user.ID = primitive.NewObjectID()
+	_, err := userDB.collection.InsertOne(context.Background(), user)
+	return err
 }

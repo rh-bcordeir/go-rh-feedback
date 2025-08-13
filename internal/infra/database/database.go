@@ -9,12 +9,10 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-var (
-	host = os.Getenv("DB_HOST")
-	port = os.Getenv("DB_PORT")
-)
-
 func NewMongoConnection() *mongo.Client {
+
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
 
 	client, err := mongo.Connect(options.Client().ApplyURI(fmt.Sprintf("mongodb://%s:%s", host, port)))
 

@@ -2,6 +2,7 @@ package entity
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -17,14 +18,14 @@ const (
 )
 
 type User struct {
-	ID            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
-	Name          string             `bson:"name" json:"name"`
-	Email         string             `bson:"email" json:"email"`
-	EmailVerified time.Time          `bson:"emailVerified" json:"emailVerified"`
-	Password      string             `bson:"password" json:"password"`
-	Role          Role               `bson:"role" json:"role"`
-	CreatedAt     time.Time          `bson:"createdAt" json:"createdAt"`
-	UpdatedAt     time.Time          `bson:"updatedAt" json:"updatedAt"`
+	ID            primitive.ObjectID `bson:"_id,omitempty"`
+	Name          string             `bson:"name" `
+	Email         string             `bson:"email" `
+	EmailVerified time.Time          `bson:"emailVerified" `
+	Password      string             `bson:"password" `
+	Role          Role               `bson:"role" `
+	CreatedAt     time.Time          `bson:"createdAt" `
+	UpdatedAt     time.Time          `bson:"updatedAt" `
 }
 
 func NewUser(name, email, password string) (*User, error) {
@@ -43,6 +44,8 @@ func NewUser(name, email, password string) (*User, error) {
 }
 
 func (u *User) ValidatePassword(password string) bool {
+	fmt.Println(u.Password)
+	fmt.Println(password)
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
 	return err == nil
 }

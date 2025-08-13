@@ -14,3 +14,7 @@ type SignInRequest struct {
 type GetJWTOutput struct {
 	AccessToken string `json:"access_token"`
 }
+
+type GenericMessageDTO struct {
+	Message string `json:"message"`
+}
