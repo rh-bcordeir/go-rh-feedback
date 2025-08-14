@@ -13,8 +13,8 @@ import (
 type Role string
 
 const (
-	INTERVIEWER Role = "Interviewer"
-	MANAGER     Role = "Manager"
+	INTERVIEWER Role = "interviewer"
+	MANAGER     Role = "manager"
 )
 
 type User struct {
@@ -38,6 +38,7 @@ func NewUser(name, email, password string) (*User, error) {
 		Name:      name,
 		Email:     email,
 		Password:  string(hash),
+		Role:      INTERVIEWER,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}, nil

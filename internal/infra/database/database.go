@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -20,6 +21,7 @@ func NewMongoConnection() *mongo.Client {
 		panic(err)
 	}
 
+	log.Println("Connected to Database")
 	return client
 }
 

@@ -47,8 +47,9 @@ func (u *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, tokenString, _ := jwtAuth.Encode(map[string]interface{}{
-		"sub": user.ID.String(),
-		"exp": time.Now().Add(time.Second * time.Duration(jwtExpiresIn)).Unix(),
+		"sub":   user.ID.String(),
+		"exp":   time.Now().Add(time.Second * time.Duration(jwtExpiresIn)).Unix(),
+		"roles": []string{string(user.Role)},
 	})
 	accessToken := dto.GetJWTOutput{AccessToken: tokenString}
 	w.Header().Set("Content-Type", "application/json")
@@ -86,9 +87,11 @@ func (u *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	// an email confirmation
 	user.EmailVerified = time.Now()
 
-	u.UserDB.SaveUser(user)
+	err = u.UserDB.SaveUser(user)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		error := dto.GenericMessageDTO{Message: err.Error()}
+		json.NewEncoder(w).Encode(error)
 		return
 	}
 

@@ -18,3 +18,10 @@ type GetJWTOutput struct {
 type GenericMessageDTO struct {
 	Message string `json:"message"`
 }
+
+type CandidateDTO struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Phone    string `json:"phone"`
+	Position string `json:"position"`
+}
