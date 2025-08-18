@@ -1,13 +1,11 @@
 package database
 
-import "go.mongodb.org/mongo-driver/v2/mongo"
+import "gorm.io/gorm"
 
 type FeedbackRepository struct {
-	client *mongo.Client
+	db *gorm.DB
 }
 
-func NewFeedbackRepository(client *mongo.Client) *FeedbackRepository {
-	return &FeedbackRepository{
-		client: client,
-	}
+func NewFeedbackRepository(db *gorm.DB) *FeedbackRepository {
+	return &FeedbackRepository{db: db}
 }

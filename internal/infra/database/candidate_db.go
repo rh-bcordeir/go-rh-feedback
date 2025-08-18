@@ -1,57 +1,53 @@
 package database
 
 import (
-	"context"
 	"errors"
-	"log"
 
 	"github.com/brunocordeiro180/go-rh-feedback/internal/entity"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/v2/mongo"
+	"gorm.io/gorm"
 )
 
 type CandidateDB struct {
-	collection *mongo.Collection
+	db *gorm.DB
 }
 
-func NewCandidateDB(client *mongo.Client) *CandidateDB {
-	return &CandidateDB{
-		collection: client.Database("feedback_db").Collection("candidates"),
-	}
+func NewCandidateDB(db *gorm.DB) *CandidateDB {
+	return &CandidateDB{db: db}
 }
 
-func (c *CandidateDB) CreateCandidate(candidate *entity.Candidate) error {
-	candidate.ID = primitive.NewObjectID()
-	_, err := c.collection.InsertOne(context.Background(), candidate)
-	if err != nil {
-		log.Println(err)
-		return errors.New("unable to insert candidate")
-	}
-	return nil
-}
-
-func (c *CandidateDB) ListCandidates() ([]entity.Candidate, error) {
-	var candidates []entity.Candidate
-	cursor, err := c.collection.Find(context.Background(), primitive.D{})
-	if err != nil {
-		log.Println(err)
-		return nil, errors.New("unable to list candidates")
-	}
-	defer cursor.Close(context.Background())
-
-	for cursor.Next(context.Background()) {
-		var candidate entity.Candidate
-		if err := cursor.Decode(&candidate); err != nil {
-			log.Println(err)
-			return nil, errors.New("error decoding candidate")
+func (c *CandidateDB) CreateCandidate(candidate *entity.Candidate, positionId string) error {
+	return c.db.Transaction(func(tx *gorm.DB) error {
+		var count int64
+		if err := tx.Model(&entity.Candidate{}).
+			Where("email = ?", candidate.Email).
+			Count(&count).Error; err != nil {
+			return err
 		}
-		candidates = append(candidates, candidate)
-	}
+		if count > 0 {
+			return errors.New("candidate with this email already exists")
+		}
 
-	if err := cursor.Err(); err != nil {
-		log.Println(err)
-		return nil, errors.New("cursor error")
-	}
+		// 2. se positionId foi informado, valida antes de criar o candidate
+		if positionId != "" {
+			var position entity.Position
+			if err := tx.First(&position, "id = ?", positionId).Error; err != nil {
+				return errors.New("position not found")
+			}
 
-	return candidates, nil
+			if err := tx.Create(candidate).Error; err != nil {
+				return err
+			}
+
+			if err := tx.Create(&entity.CandidatePosition{
+				CandidateID: candidate.ID,
+				PositionID:  position.ID,
+			}).Error; err != nil {
+				return err
+			}
+
+			return nil
+		}
+
+		return tx.Create(candidate).Error
+	})
 }

@@ -6,11 +6,12 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/brunocordeiro180/go-rh-feedback/internal/entity"
 	"github.com/brunocordeiro180/go-rh-feedback/internal/infra/database"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth"
-	"go.mongodb.org/mongo-driver/v2/mongo"
+	"gorm.io/gorm"
 )
 
 var (
@@ -18,12 +19,24 @@ var (
 )
 
 type Server struct {
-	db *mongo.Client
+	DB *gorm.DB
+}
+
+func NewJWTAuth() *jwtauth.JWTAuth {
+	jwtSecret := os.Getenv("JWT_SECRET")
+	return jwtauth.New("HS256", []byte(jwtSecret), nil)
 }
 
 func NewServer() *http.Server {
+
+	db := database.NewPostgresConnection()
+
+	// Auto-migrate entities
+	_ = db.AutoMigrate(&entity.User{}, &entity.Candidate{}, &entity.Feedback{},
+		&entity.Position{}, &entity.Stage{}, &entity.CandidatePosition{})
+
 	NewServer := &Server{
-		db: database.NewMongoConnection(),
+		DB: db,
 	}
 
 	TokenAuth = NewJWTAuth()
@@ -41,8 +54,8 @@ func NewServer() *http.Server {
 
 func (s *Server) RegisterRoutes() http.Handler {
 
-	userDB := database.NewUserDB(s.db)
-	candidateDB := database.NewCandidateDB(s.db)
+	userDB := database.NewUserDB(s.DB)
+	candidateDB := database.NewCandidateDB(s.DB)
 
 	userHandler := NewUserHandler(userDB)
 	candidateHandler := NewCandidateHandler(candidateDB)
@@ -56,7 +69,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Use(middleware.WithValue("JwtExpiresIn", expiresInt))
 
 	r.Post("/users/login", userHandler.SignIn)
-	r.Post("/users/sign_up", userHandler.SignUp)
+	r.Post("/users/sign_up", userHandler.CreateUser)
 
 	r.Route("/candidates", func(r chi.Router) {
 		r.Use(jwtauth.Verifier(TokenAuth))
@@ -65,9 +78,4 @@ func (s *Server) RegisterRoutes() http.Handler {
 	})
 
 	return r
-}
-
-func NewJWTAuth() *jwtauth.JWTAuth {
-	jwtSecret := os.Getenv("JWT_SECRET")
-	return jwtauth.New("HS256", []byte(jwtSecret), nil)
 }

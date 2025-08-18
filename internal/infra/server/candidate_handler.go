@@ -3,6 +3,7 @@ package server
 import (
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/brunocordeiro180/go-rh-feedback/internal/dto"
 	"github.com/brunocordeiro180/go-rh-feedback/internal/entity"
@@ -14,30 +15,27 @@ type CandidateHandler struct {
 }
 
 func NewCandidateHandler(db *database.CandidateDB) *CandidateHandler {
-	return &CandidateHandler{
-		CandidateDB: db,
-	}
+	return &CandidateHandler{CandidateDB: db}
 }
 
 func (c *CandidateHandler) CreateCandidate(w http.ResponseWriter, r *http.Request) {
 	var candidateDTO dto.CandidateDTO
-	err := json.NewDecoder(r.Body).Decode(&candidateDTO)
-	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-
-	candidate, err := entity.NewCandidate(candidateDTO.Name, candidateDTO.Email,
-		candidateDTO.Phone, candidateDTO.Position)
-
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&candidateDTO); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = c.CandidateDB.CreateCandidate(candidate)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	candidate := &entity.Candidate{
+		Name:      candidateDTO.Name,
+		Email:     candidateDTO.Email,
+		Phone:     candidateDTO.Phone,
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+
+	if err := c.CandidateDB.CreateCandidate(candidate, candidateDTO.Position); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(&dto.GenericMessageDTO{Message: err.Error()})
 		return
 	}
 

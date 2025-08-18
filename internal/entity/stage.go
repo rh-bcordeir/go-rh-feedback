@@ -1,18 +1,19 @@
 package entity
 
 import (
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type Stage struct {
-	ID          primitive.ObjectID `bson:"_id,omitempty" `
-	Title       string             `bson:"title"`
-	Description string             `bson:"description"`
+	ID          uuid.UUID
+	Title       string
+	Description string
 }
 
-func NewStage(title, description string) *Stage {
-	return &Stage{
-		Title:       title,
-		Description: description,
+func (f *Stage) BeforeCreate(tx *gorm.DB) (err error) {
+	if f.ID == uuid.Nil {
+		f.ID = uuid.New()
 	}
+	return nil
 }

@@ -15,7 +15,7 @@ bin = "./tmp/main"
 
 # Array com nomes de arquivos e/ou diretórios para se ignorar.
 # Estou ignorando a pasta /tmp pois ela não faz parte do meu programa.
-exclude_dir = ["tmp", "assets", "mongodb_data"]
+exclude_dir = ["tmp", "assets", "pg_data"]
 
 # Array com expressões regex para ignorar arquivos com nomes específicos.
 exclude_regex = ["_test\\.go"]

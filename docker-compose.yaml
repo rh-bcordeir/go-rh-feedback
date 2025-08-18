@@ -1,8 +1,18 @@
 services:
-  mongodb:
-    container_name: mongodb
-    image: mongo
+  postgres:
+    image: postgres:16
+    container_name: feedbacks-postgres
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_DB: ${DB_NAME:-feedbacks}
     ports:
-      - "27017:27017"
+      - "5432:5432"
     volumes:
-      - ./mongodb_data:/data/db:Z
+      - ./pg_data:/var/lib/postgresql/data:Z
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres} -d ${DB_NAME:-feedbacks}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+

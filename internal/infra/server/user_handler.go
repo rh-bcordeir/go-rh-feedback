@@ -2,13 +2,14 @@ package server
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/brunocordeiro180/go-rh-feedback/internal/dto"
 	"github.com/brunocordeiro180/go-rh-feedback/internal/entity"
 	"github.com/brunocordeiro180/go-rh-feedback/internal/infra/database"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth"
 )
 
@@ -23,42 +24,40 @@ func NewUserHandler(db *database.UserDB) *UserHandler {
 }
 
 func (u *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
+	var input dto.SignInRequest
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	user, err := u.UserDB.FindByEmail(input.Email)
+	if err != nil || !user.ValidatePassword(input.Password) {
+		http.Error(w, "invalid email or password", http.StatusUnauthorized)
+		return
+	}
+
 	jwtAuth := r.Context().Value("jwtAuth").(*jwtauth.JWTAuth)
 	jwtExpiresIn := r.Context().Value("JwtExpiresIn").(int)
-	var userDTO dto.SignInRequest
-	err := json.NewDecoder(r.Body).Decode(&userDTO)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
 
-	user, err := u.UserDB.FindByEmail(userDTO.Email)
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		err := dto.GenericMessageDTO{Message: err.Error()}
-		json.NewEncoder(w).Encode(err)
-		return
-	}
-	fmt.Println(user)
-
-	if !user.ValidatePassword(userDTO.Password) || user.EmailVerified.IsZero() {
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	_, tokenString, _ := jwtAuth.Encode(map[string]interface{}{
+	claims := map[string]interface{}{
 		"sub":   user.ID.String(),
-		"exp":   time.Now().Add(time.Second * time.Duration(jwtExpiresIn)).Unix(),
-		"roles": []string{string(user.Role)},
-	})
-	accessToken := dto.GetJWTOutput{AccessToken: tokenString}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(accessToken)
+		"name":  user.Name,
+		"email": user.Email,
+		"role":  user.Role,
+		"iat":   time.Now().Unix(),
+		"exp":   time.Now().Add(time.Duration(jwtExpiresIn) * time.Second).Unix(),
+	}
 
+	_, tokenString, _ := jwtAuth.Encode(claims)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(&dto.GetJWTOutput{AccessToken: tokenString})
 }
 
-func (u *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
+func (u *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
+	reqID := middleware.GetReqID(r.Context())
+	log.Printf("CreateUser called. reqID=%s", reqID)
+
 	var createUserDTO dto.CreateUserDTO
 	err := json.NewDecoder(r.Body).Decode(&createUserDTO)
 	if err != nil {
@@ -69,37 +68,34 @@ func (u *UserHandler) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: validate password
-	user, err := entity.NewUser(createUserDTO.Name, createUserDTO.Email, createUserDTO.Password)
-	if err != nil {
+	user := &entity.User{
+		Name:     createUserDTO.Name,
+		Email:    createUserDTO.Email,
+		Password: createUserDTO.Password,
+		Role:     entity.INTERVIEWER,
+	}
+
+	if err := user.ValidateEmail(user.Email); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		error := dto.GenericMessageDTO{Message: err.Error()}
-		json.NewEncoder(w).Encode(error)
+		json.NewEncoder(w).Encode(dto.GenericMessageDTO{Message: err.Error()})
 		return
 	}
-	if err = user.ValidateEmail(user.Email); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		error := dto.GenericMessageDTO{Message: err.Error()}
-		json.NewEncoder(w).Encode(error)
+
+	if err := user.HashPassword(); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(dto.GenericMessageDTO{Message: err.Error()})
 		return
 	}
 
 	// For now the email will be already verified but in the future it will send
 	// an email confirmation
-	user.EmailVerified = time.Now()
-
-	err = u.UserDB.SaveUser(user)
-	if err != nil {
+	if err := u.UserDB.SaveUser(user); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		error := dto.GenericMessageDTO{Message: err.Error()}
-		json.NewEncoder(w).Encode(error)
+		json.NewEncoder(w).Encode(dto.GenericMessageDTO{Message: err.Error()})
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(
-		&dto.GenericMessageDTO{
-			Message: "User Created",
-		},
-	)
+	json.NewEncoder(w).Encode(&dto.GenericMessageDTO{Message: "User Created"})
 }

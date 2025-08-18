@@ -1,38 +1,24 @@
 package entity
 
 import (
-	"errors"
-	"log"
 	"time"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type Candidate struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty"`
-	Name      string             `bson:"name"`
-	Email     string             `bson:"email"`
-	Phone     string             `bson:"phone"`
-	Position  primitive.ObjectID `bson:"position"`
-	Feedbacks []Feedback         `bson:"feedbacks"`
-	CreatedAt time.Time          `bson:"createdAt"`
-	UpdatedAt time.Time          `bson:"updatedAt"`
+	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	Name      string
+	Email     string
+	Phone     string
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
-func NewCandidate(name, email, phone string, position string) (*Candidate, error) {
-	positionId, err := primitive.ObjectIDFromHex(position)
-
-	if err != nil {
-		log.Println(err)
-		return nil, errors.New("invalid position ID")
+func (c *Candidate) BeforeCreate(tx *gorm.DB) (err error) {
+	if c.ID == uuid.Nil {
+		c.ID = uuid.New()
 	}
-
-	return &Candidate{
-		Name:      name,
-		Email:     email,
-		Phone:     phone,
-		Position:  positionId,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
-	}, nil
+	return nil
 }

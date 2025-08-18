@@ -1,16 +1,18 @@
 package entity
 
 import (
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type Position struct {
-	ID    primitive.ObjectID `bson:"_id,omitempty"`
-	Title string             `bson:"title"`
+	ID    uuid.UUID
+	Title string
 }
 
-func NewPosition(title string) *Position {
-	return &Position{
-		Title: title,
+func (f *Position) BeforeCreate(tx *gorm.DB) (err error) {
+	if f.ID == uuid.Nil {
+		f.ID = uuid.New()
 	}
+	return nil
 }
