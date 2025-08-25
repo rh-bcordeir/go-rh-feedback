@@ -1,11 +1,18 @@
 package database
 
-import "gorm.io/gorm"
+import (
+	"github.com/brunocordeiro180/go-rh-feedback/internal/entity"
+	"gorm.io/gorm"
+)
 
-type FeedbackRepository struct {
+type FeedbackDB struct {
 	db *gorm.DB
 }
 
-func NewFeedbackRepository(db *gorm.DB) *FeedbackRepository {
-	return &FeedbackRepository{db: db}
+func NewFeedbackDB(db *gorm.DB) *FeedbackDB {
+	return &FeedbackDB{db: db}
+}
+
+func (f *FeedbackDB) SaveFeedback(feedback *entity.Feedback) error {
+	return f.db.Create(feedback).Error
 }

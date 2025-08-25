@@ -51,3 +51,11 @@ func (c *CandidateDB) CreateCandidate(candidate *entity.Candidate, positionId st
 		return tx.Create(candidate).Error
 	})
 }
+
+func (c *CandidateDB) GetAllCandidates() ([]entity.Candidate, error) {
+	var candidates []entity.Candidate
+	if err := c.db.Preload("Positions").Find(&candidates).Error; err != nil {
+		return nil, err
+	}
+	return candidates, nil
+}

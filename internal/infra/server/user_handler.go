@@ -68,11 +68,14 @@ func (u *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// TODO: validate password
+	// For now the email will be already verified but in the future it will send
+	// an email confirmation
 	user := &entity.User{
-		Name:     createUserDTO.Name,
-		Email:    createUserDTO.Email,
-		Password: createUserDTO.Password,
-		Role:     entity.INTERVIEWER,
+		Name:          createUserDTO.Name,
+		Email:         createUserDTO.Email,
+		Password:      createUserDTO.Password,
+		Role:          entity.INTERVIEWER,
+		EmailVerified: true,
 	}
 
 	if err := user.ValidateEmail(user.Email); err != nil {
@@ -87,8 +90,6 @@ func (u *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// For now the email will be already verified but in the future it will send
-	// an email confirmation
 	if err := u.UserDB.SaveUser(user); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(dto.GenericMessageDTO{Message: err.Error()})

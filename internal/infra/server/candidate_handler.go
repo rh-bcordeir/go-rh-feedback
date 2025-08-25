@@ -42,3 +42,15 @@ func (c *CandidateHandler) CreateCandidate(w http.ResponseWriter, r *http.Reques
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(candidateDTO)
 }
+
+func (c *CandidateHandler) GetAllCandidates(w http.ResponseWriter, r *http.Request) {
+	candidates, err := c.CandidateDB.GetAllCandidates()
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(&dto.GenericMessageDTO{Message: err.Error()})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(candidates)
+}

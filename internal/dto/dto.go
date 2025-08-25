@@ -25,3 +25,10 @@ type CandidateDTO struct {
 	Phone    string `json:"phone"`
 	Position string `json:"position"`
 }
+
+type FeedbackDTO struct {
+	CandidateID string `json:"candidate_id"`
+	StageID     string `json:"stage_id"`
+	Comments    string `json:"comments"`
+	Score       int    `json:"score"`
+}

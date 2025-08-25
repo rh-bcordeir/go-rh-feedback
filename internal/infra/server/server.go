@@ -12,6 +12,8 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth"
 	"gorm.io/gorm"
+
+	jwtPkg "github.com/brunocordeiro180/go-rh-feedback/pkg/jwt_pkg"
 )
 
 var (
@@ -56,9 +58,11 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	userDB := database.NewUserDB(s.DB)
 	candidateDB := database.NewCandidateDB(s.DB)
+	feedbackDB := database.NewFeedbackDB(s.DB)
 
 	userHandler := NewUserHandler(userDB)
 	candidateHandler := NewCandidateHandler(candidateDB)
+	feedbackHandler := NewFeedbackHandler(feedbackDB)
 
 	expiresStr := os.Getenv("JWT_EXPIRESIN")
 	expiresInt, _ := strconv.Atoi(expiresStr)
@@ -74,7 +78,14 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Route("/candidates", func(r chi.Router) {
 		r.Use(jwtauth.Verifier(TokenAuth))
 		r.Use(jwtauth.Authenticator)
-		r.Post("/", candidateHandler.CreateCandidate)
+		r.With(jwtPkg.RequireRole("interviewer")).Post("/", candidateHandler.CreateCandidate)
+		r.Get("/", candidateHandler.GetAllCandidates)
+	})
+
+	r.Route("/feedbacks", func(r chi.Router) {
+		r.Use(jwtauth.Verifier(TokenAuth))
+		r.Use(jwtauth.Authenticator)
+		r.With(jwtPkg.RequireRole("interviewer")).Post("/", feedbackHandler.CreateFeedback)
 	})
 
 	return r
