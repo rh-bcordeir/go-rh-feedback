@@ -15,7 +15,7 @@ func NewCandidateDB(db *gorm.DB) *CandidateDB {
 	return &CandidateDB{db: db}
 }
 
-func (c *CandidateDB) CreateCandidate(candidate *entity.Candidate, positionId string) error {
+func (c *CandidateDB) CreateCandidate(candidate *entity.Candidate, positionId uint) error {
 	return c.db.Transaction(func(tx *gorm.DB) error {
 		var count int64
 		if err := tx.Model(&entity.Candidate{}).
@@ -28,7 +28,7 @@ func (c *CandidateDB) CreateCandidate(candidate *entity.Candidate, positionId st
 		}
 
 		// 2. se positionId foi informado, valida antes de criar o candidate
-		if positionId != "" {
+		if positionId != 0 {
 			var position entity.Position
 			if err := tx.First(&position, "id = ?", positionId).Error; err != nil {
 				return errors.New("position not found")
@@ -54,7 +54,7 @@ func (c *CandidateDB) CreateCandidate(candidate *entity.Candidate, positionId st
 
 func (c *CandidateDB) GetAllCandidates() ([]entity.Candidate, error) {
 	var candidates []entity.Candidate
-	if err := c.db.Preload("Positions").Find(&candidates).Error; err != nil {
+	if err := c.db.Model(&entity.Candidate{}).Preload("Positions").Find(&candidates).Error; err != nil {
 		return nil, err
 	}
 	return candidates, nil

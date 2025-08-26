@@ -13,7 +13,7 @@ type Feedback struct {
 	Interviewer   User      `gorm:"foreignKey:InterviewerID"`
 	CandidateID   uuid.UUID `gorm:"type:uuid" json:"candidate_id"`
 	Candidate     Candidate `gorm:"foreignKey:CandidateID"`
-	StageID       uuid.UUID `gorm:"type:uuid"`
+	StageID       uint      `gorm:"not null"`
 	Stage         Stage     `gorm:"foreignKey:StageID"`
 	Comments      string    `gorm:"type:text" json:"comments"`
 	Score         int       `json:"score"`
@@ -28,15 +28,14 @@ func (f *Feedback) BeforeCreate(tx *gorm.DB) (err error) {
 	return nil
 }
 
-func NewFeedback(interviewerID, candidateID, stageID string, comments string, score int) *Feedback {
+func NewFeedback(interviewerID, candidateID string, stageID uint, comments string, score int) *Feedback {
 	interviewerUUID := uuid.MustParse(interviewerID)
 	candidateUUID := uuid.MustParse(candidateID)
-	stageUUID := uuid.MustParse(stageID)
 
 	return &Feedback{
 		InterviewerID: interviewerUUID,
 		CandidateID:   candidateUUID,
-		StageID:       stageUUID,
+		StageID:       stageID,
 		Comments:      comments,
 		Score:         score,
 		CreatedAt:     time.Now(),

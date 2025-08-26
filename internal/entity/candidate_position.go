@@ -7,8 +7,8 @@ import (
 
 type CandidatePosition struct {
 	ID          uuid.UUID `gorm:"type:uuid;primaryKey" `
-	CandidateID uuid.UUID `gorm:"type:uuid;not null" `
-	PositionID  uuid.UUID `gorm:"type:uuid;not null" `
+	CandidateID uuid.UUID `gorm:"not null" `
+	PositionID  uint      `gorm:"not null" `
 	Candidate   Candidate `gorm:"foreignKey:CandidateID"`
 	Position    Position  `gorm:"foreignKey:PositionID"`
 }

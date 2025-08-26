@@ -23,12 +23,12 @@ type CandidateDTO struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Phone    string `json:"phone"`
-	Position string `json:"position"`
+	Position uint   `json:"position"`
 }
 
 type FeedbackDTO struct {
 	CandidateID string `json:"candidate_id"`
-	StageID     string `json:"stage_id"`
+	StageID     uint   `json:"stage_id"`
 	Comments    string `json:"comments"`
 	Score       int    `json:"score"`
 }
