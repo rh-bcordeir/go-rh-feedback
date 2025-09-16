@@ -1,0 +1,458 @@
+basePath: /
+definitions:
+  dto.CandidateDTO:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      position:
+        type: integer
+    type: object
+  dto.CreateUserDTO:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    type: object
+  dto.FeedbackDTO:
+    properties:
+      candidate_id:
+        type: string
+      comments:
+        type: string
+      score:
+        type: integer
+      stage_id:
+        type: integer
+    type: object
+  dto.GenericMessageDTO:
+    properties:
+      message:
+        type: string
+    type: object
+  dto.GetJWTOutput:
+    properties:
+      access_token:
+        type: string
+    type: object
+  dto.PositionDTO:
+    properties:
+      title:
+        type: string
+    type: object
+  dto.SignInRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  dto.StageDTO:
+    properties:
+      title:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: brunocordeiro@redhat.com
+    name: Bruno
+  description: This is API for avaliate candidates.
+  termsOfService: http://swagger.io/terms/
+  title: Swagger Feedback API
+  version: "1.0"
+paths:
+  /candidates:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.CandidateDTO'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+      security:
+      - ApiKeyAuth: []
+      summary: List all candidates
+      tags:
+      - Candidates
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: product request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CandidateDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+      security:
+      - ApiKeyAuth: []
+      summary: Create candidate
+      tags:
+      - Candidates
+  /candidates/{id}:
+    delete:
+      parameters:
+      - description: Candidate ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete candidate
+      tags:
+      - Candidates
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Candidate ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: candidate request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CandidateDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CandidateDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+      security:
+      - ApiKeyAuth: []
+      summary: Update candidate
+      tags:
+      - Candidates
+  /feedbacks:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.FeedbackDTO'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+      security:
+      - ApiKeyAuth: []
+      summary: List all feedbacks
+      tags:
+      - Feedbacks
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: feedback request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.FeedbackDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.FeedbackDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+      security:
+      - ApiKeyAuth: []
+      summary: Create feedback
+      tags:
+      - Feedbacks
+  /feedbacks/{id}:
+    delete:
+      parameters:
+      - description: Feedback ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete feedback
+      tags:
+      - Feedbacks
+  /positions:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.PositionDTO'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+      security:
+      - ApiKeyAuth: []
+      summary: List all positions
+      tags:
+      - Positions
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: position request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.PositionDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.PositionDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+      security:
+      - ApiKeyAuth: []
+      summary: Create position
+      tags:
+      - Positions
+  /positions/{id}:
+    delete:
+      parameters:
+      - description: Position ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete position
+      tags:
+      - Positions
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Position ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: position request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.PositionDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.PositionDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+      security:
+      - ApiKeyAuth: []
+      summary: Update position
+      tags:
+      - Positions
+  /stages:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.StageDTO'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+      security:
+      - ApiKeyAuth: []
+      summary: List all stages
+      tags:
+      - Stages
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: stage request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.StageDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.StageDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+      security:
+      - ApiKeyAuth: []
+      summary: Create stage
+      tags:
+      - Stages
+  /stages/{id}:
+    delete:
+      parameters:
+      - description: Stage ID
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete stage
+      tags:
+      - Stages
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: sign in request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignInRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetJWTOutput'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+      summary: Authenticate user and return JWT
+      tags:
+      - Users
+  /users/sign_up:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: create user request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserDTO'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+      summary: Create a new user
+      tags:
+      - Users
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

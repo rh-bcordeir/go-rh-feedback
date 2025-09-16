@@ -17,6 +17,14 @@ func NewPositionHandler(db *database.PositionDB) *PositionHandler {
 	return &PositionHandler{PositionDB: db}
 }
 
+// Get All Positions godoc
+// @Summary      List all positions
+// @Tags         Positions
+// @Produce      json
+// @Success      200  {array}   dto.PositionDTO
+// @Failure      400  {object}  dto.GenericMessageDTO
+// @Router       /positions [get]
+// @Security     ApiKeyAuth
 func (p *PositionHandler) GetAllPositions(w http.ResponseWriter, r *http.Request) {
 	positions, err := p.PositionDB.GetAllPositions()
 	if err != nil {
@@ -28,6 +36,16 @@ func (p *PositionHandler) GetAllPositions(w http.ResponseWriter, r *http.Request
 	json.NewEncoder(w).Encode(positions)
 }
 
+// Create Position godoc
+// @Summary      Create position
+// @Tags         Positions
+// @Accept       json
+// @Produce      json
+// @Param        request  body      dto.PositionDTO  true  "position request"
+// @Success      201      {object}  dto.PositionDTO
+// @Failure      400      {object}  dto.GenericMessageDTO
+// @Router       /positions [post]
+// @Security     ApiKeyAuth
 func (p *PositionHandler) CreatePosition(w http.ResponseWriter, r *http.Request) {
 	var positionDTO dto.PositionDTO
 	if err := json.NewDecoder(r.Body).Decode(&positionDTO); err != nil {
@@ -44,6 +62,17 @@ func (p *PositionHandler) CreatePosition(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(positionDTO)
 }
 
+// Update Position godoc
+// @Summary      Update position
+// @Tags         Positions
+// @Accept       json
+// @Produce      json
+// @Param        id       path      string          true  "Position ID"
+// @Param        request  body      dto.PositionDTO true  "position request"
+// @Success      200      {object}  dto.PositionDTO
+// @Failure      400      {object}  dto.GenericMessageDTO
+// @Router       /positions/{id} [put]
+// @Security     ApiKeyAuth
 func (p *PositionHandler) UpdatePosition(w http.ResponseWriter, r *http.Request) {
 	var positionDTO dto.PositionDTO
 	id, err := strconv.ParseUint(r.PathValue("id"), 10, 64)
@@ -67,6 +96,14 @@ func (p *PositionHandler) UpdatePosition(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(positionDTO)
 }
 
+// Delete Position godoc
+// @Summary      Delete position
+// @Tags         Positions
+// @Param        id   path  string  true  "Position ID"
+// @Success      204
+// @Failure      400  {object}  dto.GenericMessageDTO
+// @Router       /positions/{id} [delete]
+// @Security     ApiKeyAuth
 func (p *PositionHandler) DeletePosition(w http.ResponseWriter, r *http.Request) {
 	positionID := r.PathValue("id")
 	id, err := strconv.ParseUint(positionID, 10, 64)

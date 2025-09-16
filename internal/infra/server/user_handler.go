@@ -22,16 +22,26 @@ func NewUserHandler(db *database.UserDB) *UserHandler {
 	}
 }
 
+// Sign In godoc
+// @Summary      Authenticate user and return JWT
+// @Tags         Users
+// @Accept       json
+// @Produce      json
+// @Param        request  body      dto.SignInRequest  true  "sign in request"
+// @Success      200      {object}  dto.GetJWTOutput
+// @Failure      400      {object}  dto.GenericMessageDTO
+// @Failure      401      {object}  dto.GenericMessageDTO
+// @Router       /users/login [post]
 func (u *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	var input dto.SignInRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		WriteHttpError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	user, err := u.UserDB.FindByEmail(input.Email)
 	if err != nil || !user.ValidatePassword(input.Password) {
-		http.Error(w, "invalid email or password", http.StatusUnauthorized)
+		WriteHttpError(w, "invalid email or password", http.StatusUnauthorized)
 		return
 	}
 
@@ -53,6 +63,16 @@ func (u *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&dto.GetJWTOutput{AccessToken: tokenString})
 }
 
+// Create User godoc
+// @Summary      Create a new user
+// @Tags         Users
+// @Accept       json
+// @Produce      json
+// @Param        request  body      dto.CreateUserDTO  true  "create user request"
+// @Success      200      {object}  dto.GenericMessageDTO
+// @Failure      400      {object}  dto.GenericMessageDTO
+// @Failure      500      {object}  dto.GenericMessageDTO
+// @Router       /users/sign_up [post]
 func (u *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	reqID := middleware.GetReqID(r.Context())
 	log.Printf("CreateUser called. reqID=%s", reqID)
@@ -60,9 +80,7 @@ func (u *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var createUserDTO dto.CreateUserDTO
 	err := json.NewDecoder(r.Body).Decode(&createUserDTO)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		err := dto.GenericMessageDTO{Message: err.Error()}
-		json.NewEncoder(w).Encode(err)
+		WriteHttpError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -72,20 +90,17 @@ func (u *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	user := createUserDTO.ToEntity()
 
 	if err := user.ValidateEmail(user.Email); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(dto.GenericMessageDTO{Message: err.Error()})
+		WriteHttpError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	if err := user.HashPassword(); err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(dto.GenericMessageDTO{Message: err.Error()})
+		WriteHttpError(w, "failed to hash password", http.StatusInternalServerError)
 		return
 	}
 
 	if err := u.UserDB.SaveUser(user); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(dto.GenericMessageDTO{Message: err.Error()})
+		WriteHttpError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

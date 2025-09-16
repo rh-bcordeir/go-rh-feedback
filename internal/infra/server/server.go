@@ -10,12 +10,12 @@ import (
 	"github.com/brunocordeiro180/go-rh-feedback/internal/dto"
 	"github.com/brunocordeiro180/go-rh-feedback/internal/entity"
 	"github.com/brunocordeiro180/go-rh-feedback/internal/infra/database"
+	jwtPkg "github.com/brunocordeiro180/go-rh-feedback/pkg/jwt_pkg"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"gorm.io/gorm"
-
-	jwtPkg "github.com/brunocordeiro180/go-rh-feedback/pkg/jwt_pkg"
 )
 
 var (
@@ -111,8 +111,13 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(jwtauth.Verifier(TokenAuth))
 		r.Use(jwtauth.Authenticator)
 		r.With(jwtPkg.RequireRole("interviewer")).Post("/", stageHandler.CreateStage)
+		r.With(jwtPkg.RequireRole("interviewer")).Delete("/{id}", stageHandler.DeleteStage)
 		r.Get("/", stageHandler.GetAllStages)
 	})
+
+	r.Get("/docs/*", httpSwagger.Handler(
+		httpSwagger.URL("http://localhost:8080/docs/doc.json"),
+	))
 
 	return r
 }

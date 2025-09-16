@@ -25,3 +25,17 @@ func (s *StageDB) GetAllStages() ([]entity.Stage, error) {
 func (s *StageDB) CreateStage(stage *entity.Stage) error {
 	return s.db.Create(stage).Error
 }
+
+func (s *StageDB) FindByID(id uint) (*entity.Stage, error) {
+	var stage entity.Stage
+	err := s.db.First(&stage, "id = ?", id).Error
+	return &stage, err
+}
+
+func (s *StageDB) DeleteStage(id uint) error {
+	_, err := s.FindByID(id)
+	if err != nil {
+		return err
+	}
+	return s.db.Delete(&entity.Stage{}, id).Error
+}
