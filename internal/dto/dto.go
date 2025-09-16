@@ -32,3 +32,11 @@ type FeedbackDTO struct {
 	Comments    string `json:"comments"`
 	Score       int    `json:"score"`
 }
+
+type PositionDTO struct {
+	Title string `json:"title"`
+}
+
+type StageDTO struct {
+	Title string `json:"title"`
+}

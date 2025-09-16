@@ -49,3 +49,27 @@ func (f *FeedbackHandler) CreateFeedback(w http.ResponseWriter, r *http.Request)
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(feedbackDTO)
 }
+
+func (f *FeedbackHandler) GetAllFeedbacks(w http.ResponseWriter, r *http.Request) {
+	feedbacks, err := f.FeedbackDB.GetAllFeedbacks()
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(&dto.GenericMessageDTO{Message: err.Error()})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(feedbacks)
+}
+
+func (f *FeedbackHandler) DeleteFeedback(w http.ResponseWriter, r *http.Request) {
+	feedbackId := r.PathValue("id")
+
+	if err := f.FeedbackDB.DeleteFeedback(feedbackId); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(&dto.GenericMessageDTO{Message: err.Error()})
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}

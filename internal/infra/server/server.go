@@ -1,11 +1,13 @@
 package server
 
 import (
+	"encoding/json"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
 
+	"github.com/brunocordeiro180/go-rh-feedback/internal/dto"
 	"github.com/brunocordeiro180/go-rh-feedback/internal/entity"
 	"github.com/brunocordeiro180/go-rh-feedback/internal/infra/database"
 	"github.com/go-chi/chi/v5"
@@ -59,10 +61,14 @@ func (s *Server) RegisterRoutes() http.Handler {
 	userDB := database.NewUserDB(s.DB)
 	candidateDB := database.NewCandidateDB(s.DB)
 	feedbackDB := database.NewFeedbackDB(s.DB)
+	positionDB := database.NewPositionDB(s.DB)
+	stageDB := database.NewStageDB(s.DB)
 
 	userHandler := NewUserHandler(userDB)
 	candidateHandler := NewCandidateHandler(candidateDB)
 	feedbackHandler := NewFeedbackHandler(feedbackDB)
+	positionHandler := NewPositionHandler(positionDB)
+	stageHandler := NewStageHandler(stageDB)
 
 	expiresStr := os.Getenv("JWT_EXPIRESIN")
 	expiresInt, _ := strconv.Atoi(expiresStr)
@@ -79,6 +85,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(jwtauth.Verifier(TokenAuth))
 		r.Use(jwtauth.Authenticator)
 		r.With(jwtPkg.RequireRole("interviewer")).Post("/", candidateHandler.CreateCandidate)
+		r.With(jwtPkg.RequireRole("interviewer")).Delete("/{id}", candidateHandler.DeleteCandidate)
+		r.With(jwtPkg.RequireRole("interviewer")).Patch("/{id}", candidateHandler.UpdateCandidate)
 		r.Get("/", candidateHandler.GetAllCandidates)
 	})
 
@@ -86,7 +94,30 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(jwtauth.Verifier(TokenAuth))
 		r.Use(jwtauth.Authenticator)
 		r.With(jwtPkg.RequireRole("interviewer")).Post("/", feedbackHandler.CreateFeedback)
+		r.With(jwtPkg.RequireRole("interviewer")).Get("/", feedbackHandler.GetAllFeedbacks)
+		r.With(jwtPkg.RequireRole("interviewer")).Delete("/{id}", feedbackHandler.DeleteFeedback)
+	})
+
+	r.Route("/positions", func(r chi.Router) {
+		r.Use(jwtauth.Verifier(TokenAuth))
+		r.Use(jwtauth.Authenticator)
+		r.With(jwtPkg.RequireRole("interviewer")).Post("/", positionHandler.CreatePosition)
+		r.With(jwtPkg.RequireRole("interviewer")).Patch("/{id}", positionHandler.UpdatePosition)
+		r.With(jwtPkg.RequireRole("interviewer")).Delete("/{id}", positionHandler.DeletePosition)
+		r.Get("/", positionHandler.GetAllPositions)
+	})
+
+	r.Route("/stages", func(r chi.Router) {
+		r.Use(jwtauth.Verifier(TokenAuth))
+		r.Use(jwtauth.Authenticator)
+		r.With(jwtPkg.RequireRole("interviewer")).Post("/", stageHandler.CreateStage)
+		r.Get("/", stageHandler.GetAllStages)
 	})
 
 	return r
+}
+
+func WriteHttpError(w http.ResponseWriter, errMsg string, statusCode int) {
+	w.WriteHeader(statusCode)
+	json.NewEncoder(w).Encode(&dto.GenericMessageDTO{Message: errMsg})
 }

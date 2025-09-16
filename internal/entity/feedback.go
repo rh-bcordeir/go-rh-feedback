@@ -10,11 +10,11 @@ import (
 type Feedback struct {
 	ID            uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
 	InterviewerID uuid.UUID `gorm:"type:uuid" json:"interviewer_id"`
-	Interviewer   User      `gorm:"foreignKey:InterviewerID"`
+	Interviewer   User      `gorm:"foreignKey:InterviewerID" json:"-"`
 	CandidateID   uuid.UUID `gorm:"type:uuid" json:"candidate_id"`
-	Candidate     Candidate `gorm:"foreignKey:CandidateID"`
+	Candidate     Candidate `gorm:"foreignKey:CandidateID" json:"-"`
 	StageID       uint      `gorm:"not null"`
-	Stage         Stage     `gorm:"foreignKey:StageID"`
+	Stage         Stage     `gorm:"foreignKey:StageID" json:"-"`
 	Comments      string    `gorm:"type:text" json:"comments"`
 	Score         int       `json:"score"`
 	CreatedAt     time.Time `json:"created_at"`

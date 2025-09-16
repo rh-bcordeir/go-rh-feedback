@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/brunocordeiro180/go-rh-feedback/internal/dto"
-	"github.com/brunocordeiro180/go-rh-feedback/internal/entity"
 	"github.com/brunocordeiro180/go-rh-feedback/internal/infra/database"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/jwtauth"
@@ -70,13 +69,7 @@ func (u *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	// TODO: validate password
 	// For now the email will be already verified but in the future it will send
 	// an email confirmation
-	user := &entity.User{
-		Name:          createUserDTO.Name,
-		Email:         createUserDTO.Email,
-		Password:      createUserDTO.Password,
-		Role:          entity.INTERVIEWER,
-		EmailVerified: true,
-	}
+	user := createUserDTO.ToEntity()
 
 	if err := user.ValidateEmail(user.Email); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
