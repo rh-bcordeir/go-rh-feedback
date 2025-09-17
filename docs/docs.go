@@ -281,6 +281,50 @@ const docTemplate = `{
                 }
             }
         },
+        "/hiring_processes": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "HiringProcesses"
+                ],
+                "summary": "Create Hiring Process",
+                "parameters": [
+                    {
+                        "description": "hiring_process request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.HiringProcessDTO"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/entity.HiringProcess"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GenericMessageDTO"
+                        }
+                    }
+                }
+            }
+        },
         "/positions": {
             "get": {
                 "security": [
@@ -649,9 +693,6 @@ const docTemplate = `{
                 },
                 "phone": {
                     "type": "string"
-                },
-                "position": {
-                    "type": "integer"
                 }
             }
         },
@@ -672,11 +713,11 @@ const docTemplate = `{
         "dto.FeedbackDTO": {
             "type": "object",
             "properties": {
-                "candidate_id": {
-                    "type": "string"
-                },
                 "comments": {
                     "type": "string"
+                },
+                "hiring_process_id": {
+                    "type": "integer"
                 },
                 "score": {
                     "type": "integer"
@@ -702,6 +743,17 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.HiringProcessDTO": {
+            "type": "object",
+            "properties": {
+                "candidate_id": {
+                    "type": "string"
+                },
+                "position_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "dto.PositionDTO": {
             "type": "object",
             "properties": {
@@ -724,10 +776,97 @@ const docTemplate = `{
         "dto.StageDTO": {
             "type": "object",
             "properties": {
+                "description": {
+                    "type": "string"
+                },
                 "title": {
                     "type": "string"
                 }
             }
+        },
+        "entity.Candidate": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "positions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.Position"
+                    }
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.HiringProcess": {
+            "type": "object",
+            "properties": {
+                "candidate": {
+                    "$ref": "#/definitions/entity.Candidate"
+                },
+                "candidateID": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "position": {
+                    "$ref": "#/definitions/entity.Position"
+                },
+                "positionID": {
+                    "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/entity.Status"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.Position": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "entity.Status": {
+            "type": "string",
+            "enum": [
+                "open",
+                "ongoing",
+                "closed",
+                "canceled"
+            ],
+            "x-enum-varnames": [
+                "Open",
+                "Ongoing",
+                "Closed",
+                "Canceled"
+            ]
         }
     },
     "securityDefinitions": {

@@ -35,7 +35,7 @@ func (c *CandidateHandler) CreateCandidate(w http.ResponseWriter, r *http.Reques
 
 	candidate := candidateDTO.ToEntity()
 
-	if err := c.CandidateDB.CreateCandidate(candidate, candidateDTO.Position); err != nil {
+	if err := c.CandidateDB.CreateCandidate(candidate); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(&dto.GenericMessageDTO{Message: err.Error()})
 		return

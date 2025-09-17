@@ -44,8 +44,8 @@ func (f *FeedbackHandler) CreateFeedback(w http.ResponseWriter, r *http.Request)
 
 	feedback := entity.NewFeedback(
 		userId,
-		feedbackDTO.CandidateID,
 		feedbackDTO.StageID,
+		feedbackDTO.HiringProcessID,
 		feedbackDTO.Comments,
 		feedbackDTO.Score,
 	)

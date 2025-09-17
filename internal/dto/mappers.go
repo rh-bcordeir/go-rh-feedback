@@ -39,7 +39,8 @@ func (p *PositionDTO) ToEntityWithID(id uint64) *entity.Position {
 
 func (s *StageDTO) ToEntity() *entity.Stage {
 	return &entity.Stage{
-		Title: s.Title,
+		Title:       s.Title,
+		Description: s.Description,
 	}
 }
 
@@ -50,5 +51,14 @@ func (u *CreateUserDTO) ToEntity() *entity.User {
 		Password:      u.Password,
 		Role:          entity.INTERVIEWER,
 		EmailVerified: true,
+	}
+}
+
+func (h *HiringProcessDTO) ToEntity() *entity.HiringProcess {
+	candidateID := uuid.MustParse(h.CandidateID)
+
+	return &entity.HiringProcess{
+		CandidateID: candidateID,
+		PositionID:  h.PositionID,
 	}
 }

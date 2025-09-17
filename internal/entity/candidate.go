@@ -12,7 +12,7 @@ type Candidate struct {
 	Name      string
 	Email     string
 	Phone     string
-	Positions []Position `gorm:"many2many:candidate_positions;"`
+	Positions []Position `gorm:"many2many:hiring_processes;"`
 	CreatedAt time.Time  `gorm:"autoCreateTime;<-:create"`
 	UpdatedAt time.Time
 }

@@ -37,7 +37,7 @@ func NewServer() *http.Server {
 
 	// Auto-migrate entities
 	_ = db.AutoMigrate(&entity.User{}, &entity.Candidate{}, &entity.Feedback{},
-		&entity.Position{}, &entity.Stage{}, &entity.CandidatePosition{})
+		&entity.Position{}, &entity.Stage{}, &entity.HiringProcess{})
 
 	NewServer := &Server{
 		DB: db,
@@ -63,12 +63,14 @@ func (s *Server) RegisterRoutes() http.Handler {
 	feedbackDB := database.NewFeedbackDB(s.DB)
 	positionDB := database.NewPositionDB(s.DB)
 	stageDB := database.NewStageDB(s.DB)
+	hiringProcessDB := database.NewHiringProcessDB(s.DB)
 
 	userHandler := NewUserHandler(userDB)
 	candidateHandler := NewCandidateHandler(candidateDB)
 	feedbackHandler := NewFeedbackHandler(feedbackDB)
 	positionHandler := NewPositionHandler(positionDB)
 	stageHandler := NewStageHandler(stageDB)
+	hiringProcessHandler := NewHiringProcessHandler(hiringProcessDB)
 
 	expiresStr := os.Getenv("JWT_EXPIRESIN")
 	expiresInt, _ := strconv.Atoi(expiresStr)
@@ -113,6 +115,12 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.With(jwtPkg.RequireRole("interviewer")).Post("/", stageHandler.CreateStage)
 		r.With(jwtPkg.RequireRole("interviewer")).Delete("/{id}", stageHandler.DeleteStage)
 		r.Get("/", stageHandler.GetAllStages)
+	})
+
+	r.Route("/hiring_processes", func(r chi.Router) {
+		r.Use(jwtauth.Verifier(TokenAuth))
+		r.Use(jwtauth.Authenticator)
+		r.With(jwtPkg.RequireRole("interviewer")).Post("/", hiringProcessHandler.CreateHiringProcess)
 	})
 
 	r.Get("/docs/*", httpSwagger.Handler(

@@ -20,17 +20,21 @@ type GenericMessageDTO struct {
 }
 
 type CandidateDTO struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Phone    string `json:"phone"`
-	Position uint   `json:"position"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+	Phone string `json:"phone"`
 }
 
 type FeedbackDTO struct {
+	StageID         uint   `json:"stage_id"`
+	HiringProcessID uint   `json:"hiring_process_id"`
+	Comments        string `json:"comments"`
+	Score           int    `json:"score"`
+}
+
+type HiringProcessDTO struct {
 	CandidateID string `json:"candidate_id"`
-	StageID     uint   `json:"stage_id"`
-	Comments    string `json:"comments"`
-	Score       int    `json:"score"`
+	PositionID  uint   `json:"position_id"`
 }
 
 type PositionDTO struct {
@@ -38,5 +42,6 @@ type PositionDTO struct {
 }
 
 type StageDTO struct {
-	Title string `json:"title"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }

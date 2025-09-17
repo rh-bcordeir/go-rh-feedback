@@ -8,8 +8,6 @@ definitions:
         type: string
       phone:
         type: string
-      position:
-        type: integer
     type: object
   dto.CreateUserDTO:
     properties:
@@ -22,10 +20,10 @@ definitions:
     type: object
   dto.FeedbackDTO:
     properties:
-      candidate_id:
-        type: string
       comments:
         type: string
+      hiring_process_id:
+        type: integer
       score:
         type: integer
       stage_id:
@@ -41,6 +39,13 @@ definitions:
       access_token:
         type: string
     type: object
+  dto.HiringProcessDTO:
+    properties:
+      candidate_id:
+        type: string
+      position_id:
+        type: integer
+    type: object
   dto.PositionDTO:
     properties:
       title:
@@ -55,9 +60,68 @@ definitions:
     type: object
   dto.StageDTO:
     properties:
+      description:
+        type: string
       title:
         type: string
     type: object
+  entity.Candidate:
+    properties:
+      createdAt:
+        type: string
+      email:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      positions:
+        items:
+          $ref: '#/definitions/entity.Position'
+        type: array
+      updatedAt:
+        type: string
+    type: object
+  entity.HiringProcess:
+    properties:
+      candidate:
+        $ref: '#/definitions/entity.Candidate'
+      candidateID:
+        type: string
+      createdAt:
+        type: string
+      id:
+        type: integer
+      position:
+        $ref: '#/definitions/entity.Position'
+      positionID:
+        type: integer
+      status:
+        $ref: '#/definitions/entity.Status'
+      updatedAt:
+        type: string
+    type: object
+  entity.Position:
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  entity.Status:
+    enum:
+    - open
+    - ongoing
+    - closed
+    - canceled
+    type: string
+    x-enum-varnames:
+    - Open
+    - Ongoing
+    - Closed
+    - Canceled
 host: localhost:8080
 info:
   contact:
@@ -229,6 +293,33 @@ paths:
       summary: Delete feedback
       tags:
       - Feedbacks
+  /hiring_processes:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: hiring_process request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.HiringProcessDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entity.HiringProcess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.GenericMessageDTO'
+      security:
+      - ApiKeyAuth: []
+      summary: Create Hiring Process
+      tags:
+      - HiringProcesses
   /positions:
     get:
       produces:
