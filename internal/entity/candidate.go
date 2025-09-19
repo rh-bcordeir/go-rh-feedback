@@ -8,13 +8,13 @@ import (
 )
 
 type Candidate struct {
-	ID        uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
-	Name      string
-	Email     string
-	Phone     string
-	Positions []Position `gorm:"many2many:hiring_processes;"`
-	CreatedAt time.Time  `gorm:"autoCreateTime;<-:create"`
-	UpdatedAt time.Time
+	ID        uuid.UUID  `gorm:"type:uuid;primaryKey" json:"id"`
+	Name      string     `json:"name" gorm:"not null"`
+	Email     string     `json:"email" gorm:"not null;uniqueIndex"`
+	Phone     string     `json:"phone"`
+	Positions []Position `gorm:"many2many:hiring_processes;" json:"positions,omitempty"`
+	CreatedAt time.Time  `gorm:"autoCreateTime;<-:create" json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
 }
 
 func (c *Candidate) BeforeCreate(tx *gorm.DB) (err error) {

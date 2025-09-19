@@ -13,6 +13,7 @@ import (
 	jwtPkg "github.com/brunocordeiro180/go-rh-feedback/pkg/jwt_pkg"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/go-chi/jwtauth"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"gorm.io/gorm"
@@ -80,6 +81,18 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Use(middleware.WithValue("jwtAuth", TokenAuth))
 	r.Use(middleware.WithValue("JwtExpiresIn", expiresInt))
 
+	// Basic CORS
+	r.Use(cors.Handler(cors.Options{
+		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
+		AllowedOrigins: []string{"https://*", "http://*"},
+		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		ExposedHeaders:   []string{"Link"},
+		AllowCredentials: false,
+		MaxAge:           300, // Maximum value not ignored by any of major browsers
+	}))
+
 	r.Post("/users/login", userHandler.SignIn)
 	r.Post("/users/sign_up", userHandler.CreateUser)
 
@@ -120,6 +133,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Route("/hiring_processes", func(r chi.Router) {
 		r.Use(jwtauth.Verifier(TokenAuth))
 		r.Use(jwtauth.Authenticator)
+		r.Get("/", hiringProcessHandler.GetAllHiringProcesses)
 		r.With(jwtPkg.RequireRole("interviewer")).Post("/", hiringProcessHandler.CreateHiringProcess)
 	})
 

@@ -22,7 +22,7 @@ func (f *FeedbackDB) SaveFeedback(feedback *entity.Feedback) error {
 
 func (f *FeedbackDB) GetAllFeedbacks() ([]entity.Feedback, error) {
 	var feedbacks []entity.Feedback
-	if err := f.db.Model(&entity.Feedback{}).Preload("Interviewer").Preload("Candidate").Preload("Stage").Find(&feedbacks).Error; err != nil {
+	if err := f.db.Model(&entity.Feedback{}).Preload("Interviewer").Preload("Stage").Find(&feedbacks).Error; err != nil {
 		return nil, err
 	}
 	return feedbacks, nil

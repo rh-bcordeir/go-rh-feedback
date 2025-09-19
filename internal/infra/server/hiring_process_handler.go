@@ -46,3 +46,23 @@ func (h *HiringProcessHandler) CreateHiringProcess(w http.ResponseWriter, r *htt
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(hiringProcessDTO)
 }
+
+// GetAllHiringProcesses godoc
+// @Summary      Get all Hiring Processes
+// @Tags         HiringProcesses
+// @Produce      json
+// @Success      200  {array}   entity.HiringProcess
+// @Failure      400  {object}  dto.GenericMessageDTO
+// @Router       /hiring_processes [get]
+// @Security     ApiKeyAuth
+func (h *HiringProcessHandler) GetAllHiringProcesses(w http.ResponseWriter, r *http.Request) {
+	hiringProcesses, err := h.HiringProcessDB.GetAllHiringProcesses()
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(&dto.GenericMessageDTO{Message: err.Error()})
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(hiringProcesses)
+}
