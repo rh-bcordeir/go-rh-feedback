@@ -1,4 +1,13 @@
 services:
+  #goapp:
+  #  build:
+  #    context: .                
+  #    dockerfile: Containerfile
+  #  container_name: goapp
+  #  command: ["/app/goapp"]
+  #  ports:
+  #    - "8080:8080"
+
   postgres:
     image: postgres:16
     container_name: feedbacks-postgres
@@ -15,4 +24,26 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yaml:/etc/prometheus/prometheus.yml:Z
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning:Z
+    depends_on:
+      - prometheus
+
+
 

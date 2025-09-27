@@ -29,6 +29,8 @@ func NewHiringProcessHandler(db *database.HiringProcessDB) *HiringProcessHandler
 // @Router       /hiring_processes [post]
 // @Security     ApiKeyAuth
 func (h *HiringProcessHandler) CreateHiringProcess(w http.ResponseWriter, r *http.Request) {
+	AddPrometheusMetrics(r)
+
 	var hiringProcessDTO dto.HiringProcessDTO
 	if err := json.NewDecoder(r.Body).Decode(&hiringProcessDTO); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -56,6 +58,8 @@ func (h *HiringProcessHandler) CreateHiringProcess(w http.ResponseWriter, r *htt
 // @Router       /hiring_processes [get]
 // @Security     ApiKeyAuth
 func (h *HiringProcessHandler) GetAllHiringProcesses(w http.ResponseWriter, r *http.Request) {
+	AddPrometheusMetrics(r)
+
 	hiringProcesses, err := h.HiringProcessDB.GetAllHiringProcesses()
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

@@ -26,6 +26,8 @@ func NewPositionHandler(db *database.PositionDB) *PositionHandler {
 // @Router       /positions [get]
 // @Security     ApiKeyAuth
 func (p *PositionHandler) GetAllPositions(w http.ResponseWriter, r *http.Request) {
+	AddPrometheusMetrics(r)
+
 	positions, err := p.PositionDB.GetAllPositions()
 	if err != nil {
 		WriteHttpError(w, err.Error(), http.StatusBadRequest)
@@ -47,6 +49,8 @@ func (p *PositionHandler) GetAllPositions(w http.ResponseWriter, r *http.Request
 // @Router       /positions [post]
 // @Security     ApiKeyAuth
 func (p *PositionHandler) CreatePosition(w http.ResponseWriter, r *http.Request) {
+	AddPrometheusMetrics(r)
+
 	var positionDTO dto.PositionDTO
 	if err := json.NewDecoder(r.Body).Decode(&positionDTO); err != nil {
 		WriteHttpError(w, err.Error(), http.StatusBadRequest)
@@ -74,6 +78,8 @@ func (p *PositionHandler) CreatePosition(w http.ResponseWriter, r *http.Request)
 // @Router       /positions/{id} [put]
 // @Security     ApiKeyAuth
 func (p *PositionHandler) UpdatePosition(w http.ResponseWriter, r *http.Request) {
+	AddPrometheusMetrics(r)
+
 	var positionDTO dto.PositionDTO
 	id, err := strconv.ParseUint(r.PathValue("id"), 10, 64)
 
@@ -105,6 +111,8 @@ func (p *PositionHandler) UpdatePosition(w http.ResponseWriter, r *http.Request)
 // @Router       /positions/{id} [delete]
 // @Security     ApiKeyAuth
 func (p *PositionHandler) DeletePosition(w http.ResponseWriter, r *http.Request) {
+	AddPrometheusMetrics(r)
+
 	positionID := r.PathValue("id")
 	id, err := strconv.ParseUint(positionID, 10, 64)
 
