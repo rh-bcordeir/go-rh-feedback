@@ -2,94 +2,223 @@
   "id": null,
   "uid": "go-metrics-runtime",
   "title": "Go Runtime (Prometheus)",
-  "tags": ["go", "runtime", "prometheus"],
+  "tags": [
+    "go",
+    "runtime",
+    "prometheus"
+  ],
   "timezone": "",
   "version": 1,
   "schemaVersion": 39,
   "style": "dark",
   "refresh": "10s",
-  "time": { "from": "now-1h", "to": "now" },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
   "timepicker": {},
   "panels": [
     {
       "type": "stat",
       "title": "Goroutines",
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
       "targets": [
         {
           "expr": "go_goroutines",
           "legendFormat": "{{instance}}",
           "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "prometheus" }
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
         }
       ]
     },
     {
       "type": "stat",
       "title": "Threads",
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
       "targets": [
         {
           "expr": "go_threads",
           "legendFormat": "{{instance}}",
           "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "prometheus" }
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
         }
       ]
     },
     {
       "type": "timeseries",
       "title": "Heap Allocated (bytes)",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
-      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "expr": "go_memstats_alloc_bytes",
           "legendFormat": "{{instance}}",
           "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "prometheus" }
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
         }
       ]
     },
     {
       "type": "timeseries",
       "title": "GC Pause (avg, seconds)",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 12 },
-      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 12
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "expr": "rate(go_gc_duration_seconds_sum[5m]) / rate(go_gc_duration_seconds_count[5m])",
           "legendFormat": "{{instance}}",
           "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "prometheus" }
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
         }
       ]
     },
     {
       "type": "timeseries",
       "title": "Process CPU (cores)",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
-      "fieldConfig": { "defaults": { "unit": "none" }, "overrides": [] },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 20
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none"
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "expr": "sum by (instance) (rate(process_cpu_seconds_total[5m]))",
           "legendFormat": "{{instance}}",
           "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "prometheus" }
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
         }
       ]
     },
     {
       "type": "timeseries",
       "title": "Process RSS (bytes)",
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 28 },
-      "fieldConfig": { "defaults": { "unit": "bytes" }, "overrides": [] },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 28
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
       "targets": [
         {
           "expr": "process_resident_memory_bytes",
           "legendFormat": "{{instance}}",
           "refId": "A",
-          "datasource": { "type": "prometheus", "uid": "prometheus" }
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP Requests Rate (req/s)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 4
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "req/s"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum by (path) (rate(http_request_total[5m]))",
+          "legendFormat": "{{path}}",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "HTTP Request Duration (avg, s)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 12
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum(rate(http_request_duration_seconds_sum[5m])) / sum(rate(http_request_duration_seconds_count[5m]))",
+          "legendFormat": "avg",
+          "refId": "A",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          }
         }
       ]
     }
@@ -100,7 +229,10 @@
         "name": "instance",
         "type": "query",
         "label": "Instance",
-        "datasource": { "type": "prometheus", "uid": "prometheus" },
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
         "query": "label_values(go_goroutines, instance)",
         "includeAll": true,
         "multi": true,

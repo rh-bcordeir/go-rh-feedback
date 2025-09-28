@@ -1,12 +1,12 @@
 services:
-  #goapp:
-  #  build:
-  #    context: .                
-  #    dockerfile: Containerfile
-  #  container_name: goapp
-  #  command: ["/app/goapp"]
-  #  ports:
-  #    - "8080:8080"
+  goapp:
+    build:
+      context: .                
+      dockerfile: Containerfile
+    container_name: goapp
+    command: ["/app/goapp"]
+    ports:
+      - "8080:8080"
 
   postgres:
     image: postgres:16

@@ -33,7 +33,6 @@ func NewUserHandler(db *database.UserDB) *UserHandler {
 // @Failure      401      {object}  dto.GenericMessageDTO
 // @Router       /users/login [post]
 func (u *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
-	AddPrometheusMetrics(r)
 
 	var input dto.SignInRequest
 	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
@@ -76,7 +75,6 @@ func (u *UserHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 // @Failure      500      {object}  dto.GenericMessageDTO
 // @Router       /users/sign_up [post]
 func (u *UserHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
-	AddPrometheusMetrics(r)
 
 	reqID := middleware.GetReqID(r.Context())
 	log.Printf("CreateUser called. reqID=%s", reqID)

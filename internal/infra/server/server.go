@@ -15,30 +15,10 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/jwtauth"
-	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"gorm.io/gorm"
 )
-
-var (
-	httpRequests = prometheus.NewCounterVec(
-		prometheus.CounterOpts{
-			Name: "http_request_total",
-			Help: "Number of requests",
-		}, []string{"path"})
-
-	requestDuration = prometheus.NewHistogramVec(
-		prometheus.HistogramOpts{
-			Name: "http_request_duration_seconds",
-			Help: "Duration of http request",
-		}, []string{"path"})
-)
-
-func init() {
-	prometheus.MustRegister(httpRequests)
-	prometheus.MustRegister(requestDuration)
-}
 
 var TokenAuth *jwtauth.JWTAuth
 
@@ -97,6 +77,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
+	r.Use(PrometheusMiddleware)
 	r.Use(middleware.WithValue("jwtAuth", TokenAuth))
 	r.Use(middleware.WithValue("JwtExpiresIn", expiresInt))
 
@@ -167,11 +148,4 @@ func (s *Server) RegisterRoutes() http.Handler {
 func WriteHttpError(w http.ResponseWriter, errMsg string, statusCode int) {
 	w.WriteHeader(statusCode)
 	json.NewEncoder(w).Encode(&dto.GenericMessageDTO{Message: errMsg})
-}
-
-func AddPrometheusMetrics(r *http.Request) {
-	timer := prometheus.NewTimer(requestDuration.WithLabelValues(r.URL.Path))
-	defer timer.ObserveDuration()
-
-	httpRequests.WithLabelValues(r.URL.Path)
 }

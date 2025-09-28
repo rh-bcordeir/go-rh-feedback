@@ -26,7 +26,6 @@ func NewStageHandler(stageDB *database.StageDB) *StageHandler {
 // @Router       /stages [get]
 // @Security     ApiKeyAuth
 func (s *StageHandler) GetAllStages(w http.ResponseWriter, r *http.Request) {
-	AddPrometheusMetrics(r)
 
 	stages, err := s.StageDB.GetAllStages()
 	if err != nil {
@@ -50,7 +49,6 @@ func (s *StageHandler) GetAllStages(w http.ResponseWriter, r *http.Request) {
 // @Router       /stages [post]
 // @Security     ApiKeyAuth
 func (s *StageHandler) CreateStage(w http.ResponseWriter, r *http.Request) {
-	AddPrometheusMetrics(r)
 
 	var stageDTO dto.StageDTO
 	if err := json.NewDecoder(r.Body).Decode(&stageDTO); err != nil {
@@ -77,7 +75,6 @@ func (s *StageHandler) CreateStage(w http.ResponseWriter, r *http.Request) {
 // @Router       /stages/{id} [delete]
 // @Security     ApiKeyAuth
 func (s *StageHandler) DeleteStage(w http.ResponseWriter, r *http.Request) {
-	AddPrometheusMetrics(r)
 
 	stageID := r.PathValue("id")
 	id, err := strconv.ParseUint(stageID, 10, 64)

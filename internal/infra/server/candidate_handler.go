@@ -27,7 +27,6 @@ func NewCandidateHandler(db *database.CandidateDB) *CandidateHandler {
 // @Router       /candidates [post]
 // @Security ApiKeyAuth
 func (c *CandidateHandler) CreateCandidate(w http.ResponseWriter, r *http.Request) {
-	AddPrometheusMetrics(r)
 
 	var candidateDTO dto.CandidateDTO
 	if err := json.NewDecoder(r.Body).Decode(&candidateDTO); err != nil {
@@ -56,7 +55,6 @@ func (c *CandidateHandler) CreateCandidate(w http.ResponseWriter, r *http.Reques
 // @Router       /candidates [get]
 // @Security     ApiKeyAuth
 func (c *CandidateHandler) GetAllCandidates(w http.ResponseWriter, r *http.Request) {
-	AddPrometheusMetrics(r)
 
 	candidates, err := c.CandidateDB.GetAllCandidates()
 	if err != nil {
@@ -81,7 +79,6 @@ func (c *CandidateHandler) GetAllCandidates(w http.ResponseWriter, r *http.Reque
 // @Router       /candidates/{id} [put]
 // @Security     ApiKeyAuth
 func (c *CandidateHandler) UpdateCandidate(w http.ResponseWriter, r *http.Request) {
-	AddPrometheusMetrics(r)
 
 	var candidateDTO dto.CandidateDTO
 	candidateID := r.PathValue("id")
@@ -112,8 +109,6 @@ func (c *CandidateHandler) UpdateCandidate(w http.ResponseWriter, r *http.Reques
 // @Router       /candidates/{id} [delete]
 // @Security     ApiKeyAuth
 func (c *CandidateHandler) DeleteCandidate(w http.ResponseWriter, r *http.Request) {
-	AddPrometheusMetrics(r)
-
 	candidateID := r.PathValue("id")
 
 	if err := c.CandidateDB.DeleteCandidate(candidateID); err != nil {

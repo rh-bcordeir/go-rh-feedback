@@ -29,7 +29,6 @@ func NewFeedbackHandler(db *database.FeedbackDB) *FeedbackHandler {
 // @Router       /feedbacks [post]
 // @Security     ApiKeyAuth
 func (f *FeedbackHandler) CreateFeedback(w http.ResponseWriter, r *http.Request) {
-	AddPrometheusMetrics(r)
 
 	var feedbackDTO dto.FeedbackDTO
 	if err := json.NewDecoder(r.Body).Decode(&feedbackDTO); err != nil {
@@ -71,7 +70,6 @@ func (f *FeedbackHandler) CreateFeedback(w http.ResponseWriter, r *http.Request)
 // @Router       /feedbacks [get]
 // @Security     ApiKeyAuth
 func (f *FeedbackHandler) GetAllFeedbacks(w http.ResponseWriter, r *http.Request) {
-	AddPrometheusMetrics(r)
 
 	feedbacks, err := f.FeedbackDB.GetAllFeedbacks()
 	if err != nil {
@@ -93,7 +91,6 @@ func (f *FeedbackHandler) GetAllFeedbacks(w http.ResponseWriter, r *http.Request
 // @Router       /feedbacks/{id} [delete]
 // @Security     ApiKeyAuth
 func (f *FeedbackHandler) DeleteFeedback(w http.ResponseWriter, r *http.Request) {
-	AddPrometheusMetrics(r)
 
 	feedbackId := r.PathValue("id")
 
